@@ -146,5 +146,86 @@ namespace BE_W06L02.Controllers
 
             return clientiList;
         }
+        // GET: Seleziona i dati nel DB per visualizzare tramite ID
+        [HttpGet]
+        public ActionResult EditSpedizione(int id)
+        {
+            Spedizione spedizione = null;
+            string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                string query = "SELECT * FROM Spedizione WHERE IdSpedizione = @IdSpedizione";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@IdSpedizione", id);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    spedizione = new Spedizione
+                    {
+                        IdSpedizione = (int)reader["IdSpedizione"],
+                        IdCliente = (int)reader["IdCliente"],
+                        DataSpedizione = reader["DataSpedizione"] != DBNull.Value ? (DateTime)reader["DataSpedizione"] : (DateTime?)null,
+                        Peso = (decimal)reader["Peso"],
+                        CittaDestinazione = reader["CittaDestinazione"].ToString(),
+                        IndirizzoDestinazione = reader["IndirizzoDestinazione"].ToString(),
+                        NominativoDestinatario = reader["NominativoDestinatario"].ToString(),
+                        SpeseSpedizione = (decimal)reader["SpeseSpedizione"],
+                        DataConsegnaPrevista = reader["DataConsegnaPrevista"] != DBNull.Value ? (DateTime)reader["DataConsegnaPrevista"] : (DateTime?)null
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return View(spedizione);
+        }
+
+        [HttpPost]
+        public ActionResult EditSpedizione(int id, Spedizione spedizione)
+        {
+            if (ModelState.IsValid)
+            {
+                SqlConnection conn = null;
+                try
+                {
+                    string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
+                    conn = new SqlConnection(connectionString);
+                    string sqlQuery = "UPDATE Spedizione SET IdCliente = @IdCliente, DataSpedizione = @DataSpedizione, Peso = @Peso, CittaDestinazione = @CittaDestinazione, IndirizzoDestinazione = @IndirizzoDestinazione, NominativoDestinatario = @NominativoDestinatario, SpeseSpedizione = @SpeseSpedizione, DataConsegnaPrevista = @DataConsegnaPrevista WHERE IdSpedizione = @IdSpedizione";
+
+                    SqlCommand cmd = new SqlCommand(sqlQuery, conn);
+                    cmd.Parameters.AddWithValue("@IdSpedizione", spedizione.IdSpedizione);
+                    cmd.Parameters.AddWithValue("@IdCliente", spedizione.IdCliente);
+                    cmd.Parameters.AddWithValue("@DataSpedizione", spedizione.DataSpedizione);
+                    cmd.Parameters.AddWithValue("@Peso", spedizione.Peso);
+                    cmd.Parameters.AddWithValue("@CittaDestinazione", spedizione.CittaDestinazione);
+                    cmd.Parameters.AddWithValue("@IndirizzoDestinazione", spedizione.IndirizzoDestinazione);
+                    cmd.Parameters.AddWithValue("@NominativoDestinatario", spedizione.NominativoDestinatario);
+                    cmd.Parameters.AddWithValue("@SpeseSpedizione", spedizione.SpeseSpedizione);
+                    cmd.Parameters.AddWithValue("@DataConsegnaPrevista", spedizione.DataConsegnaPrevista);
+
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                    return RedirectToAction("Index");
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+            return View(spedizione);
+        }
+
+
     }
 }

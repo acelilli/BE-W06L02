@@ -185,6 +185,7 @@
     <Content Include="Views\Spedizione\NuovaSpedizione.cshtml" />
     <Content Include="Views\Cliente\Index.cshtml" />
     <Content Include="Views\Spedizione\Index.cshtml" />
+    <Content Include="Views\Spedizione\EditSpedizione.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
