@@ -77,8 +77,7 @@ namespace BE_W06L02.Controllers
 
                     command.ExecuteNonQuery();
 
-                    // Restituisci una vista di conferma o reindirizza ad un'altra azione dopo il salvataggio del cliente
-                    
+                   
                     return View(cliente);
                     
                 }

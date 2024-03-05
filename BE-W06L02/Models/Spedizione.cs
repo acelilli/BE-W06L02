@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Web;
+using System.Web.Mvc;
 
 namespace BE_W06L02.Models
 {
@@ -13,6 +14,7 @@ namespace BE_W06L02.Models
         [Required(ErrorMessage = "Il campo Cliente è obbligatorio.")]
         [Display(Name = "Cliente")]
         public int IdCliente { get; set; }
+        public List<SelectListItem> ClientiItems { get; set; } // Lista delle opzioni per i clienti registrati
 
         [Display(Name = "Data Spedizione")]
         [DataType(DataType.Date)]
@@ -41,7 +43,10 @@ namespace BE_W06L02.Models
         [DataType(DataType.Date)]
         public DateTime? DataConsegnaPrevista { get; set; }
 
-        public Spedizione() { }
+        public Spedizione()
+        {
+            ClientiItems = new List<SelectListItem>();
+        }
         public Spedizione(int idSpedizione, int idCliente, DateTime? dataSpedizione, decimal peso, string cittaDestinazione, string indirizzoDestinazione, string nominativoDestinatario, decimal speseSpedizione, DateTime? dataConsegnaPrevista)
         {
             IdSpedizione = idSpedizione;
@@ -53,6 +58,9 @@ namespace BE_W06L02.Models
             NominativoDestinatario = nominativoDestinatario;
             SpeseSpedizione = speseSpedizione;
             DataConsegnaPrevista = dataConsegnaPrevista;
+
+            // Inizializza le liste delle opzioni
+            ClientiItems = new List<SelectListItem>();
         }
     }
 }

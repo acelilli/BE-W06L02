@@ -9,7 +9,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Registrati subito</h5>
                     <p class="card-text">Diventa cliente, registra i tuoi dati, traccia le tue spedizioni!</p>
-                    <a href="#" class="btn btn-outline-success">Sign In</a>
+                    @Html.ActionLink("Sign In", "NuovoCliente", "Cliente", null, new { @class = "btn btn-outline-success" })
                 </div>
             </div>
         </div>
@@ -18,7 +18,7 @@
                 <div class="card-body">
                     <h5 class="card-title">Registra la tua spedizione</h5>
                     <p class="card-text">Registra la tua spedizione, controlla il suo stato, la sua posizione e tutte le tue spese.</p>
-                    <a href="#" class="btn  btn-outline-success">Registra Spedizione</a>
+                    @Html.ActionLink("Registra Spedizione", "NuovaSpedizione", "Spedizione", null, new { @class = "btn btn-outline-success" })
                 </div>
             </div>
         </div>
