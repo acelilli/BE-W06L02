@@ -183,6 +183,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Cliente\NuovoCliente.cshtml" />
     <Content Include="Views\Spedizione\NuovaSpedizione.cshtml" />
+    <Content Include="Views\Cliente\Index.cshtml" />
+    <Content Include="Views\Spedizione\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

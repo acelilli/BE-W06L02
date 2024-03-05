@@ -14,7 +14,41 @@ namespace BE_W06L02.Controllers
         // GET: Spedizione
         public ActionResult Index()
         {
-            return View();
+            string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
+            SqlConnection conn = new SqlConnection(connectionString);
+            List<Spedizione> spedizioniList = new List<Spedizione>();
+
+            try
+            {
+                conn.Open();
+                string query = "SELECT * FROM Spedizione";
+                SqlCommand command = new SqlCommand(query, conn);
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Spedizione spedizione = new Spedizione()
+                    {
+                        IdSpedizione = Convert.ToInt32(reader["IdSpedizione"]),
+                        IdCliente = Convert.ToInt32(reader["IdCliente"]),
+                        DataSpedizione = reader["DataSpedizione"] as DateTime?,
+                        Peso = Convert.ToDecimal(reader["Peso"]),
+                        CittaDestinazione = reader["CittaDestinazione"].ToString(),
+                        IndirizzoDestinazione = reader["IndirizzoDestinazione"].ToString(),
+                        NominativoDestinatario = reader["NominativoDestinatario"].ToString(),
+                        SpeseSpedizione = Convert.ToDecimal(reader["SpeseSpedizione"]),
+                        DataConsegnaPrevista = reader["DataConsegnaPrevista"] as DateTime?
+                    };
+                    spedizioniList.Add(spedizione);
+                }
+            }
+            catch { }
+            finally
+            {
+                conn.Close();
+            }
+
+            return View(spedizioniList);
         }
 
         [HttpGet]
