@@ -1,4 +1,5 @@
 ﻿using BE_W06L02.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -18,39 +19,33 @@ namespace BE_W06L02.Controllers
         {
             return View();
         }
-        // Verifico che i valoro siano unici
-        public JsonResult IsValueUnique(string columnName, string value)
-        {           
-            bool isUnique; // Variabile per memorizzare se il valore è unico nel database
+        // Verifico che i valori siano unici
+       /* Fallimenti cya
+        * public JsonResult IsValueUnique(string columnName, string value)
+        {
+            bool isUnique;
             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
-            SqlConnection conn = new SqlConnection(connectionString);
 
-            try
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                conn.Open();
-                // Query SQL dove il valore nella colonna specificata corrisponde al valore fornito
-                string query = $"SELECT * FROM Cliente WHERE {columnName} = @Value";
-                SqlCommand command = new SqlCommand(query, conn);
-                command.Parameters.AddWithValue("@Value", value);
-                SqlDataReader reader = command.ExecuteReader();
+                try
+                {
+                    conn.Open();
+                    string query = $"SELECT COUNT(*) FROM Cliente WHERE {columnName} = @Value";
+                    SqlCommand command = new SqlCommand(query, conn);
+                    command.Parameters.AddWithValue("@Value", value);
+                    int count = (int)command.ExecuteScalar();
+                    isUnique = count == 0;
 
-                // Verifica se il lettore dati ha delle righe => se non ci sono righe, significa che il valore è unico nel database
-                isUnique = !reader.HasRows;
-                // Restituisce il risultato come JSON => questo perché un remote da un json come output !
-                return Json(isUnique, JsonRequestBehavior.AllowGet);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("Errore:" + ex.Message);
-                // Restituisci false come JSON in caso di errore
-                return Json(false, JsonRequestBehavior.AllowGet);
-                
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
+                    return Json(isUnique, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("Errore:" + ex.Message);
+                    return Json(false, JsonRequestBehavior.AllowGet);
+                } */
+   
+  
 
         //Create del form da compilare per la registrazione
         [HttpGet]
@@ -63,7 +58,7 @@ namespace BE_W06L02.Controllers
         {
             if (ModelState.IsValid)
             {
-                string connectionString = ConfigurationManager.ConnectionStrings["W06Spedizioni"].ConnectionString;
+                string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
                 SqlConnection conn = new SqlConnection(connectionString);
                 try
                 {
@@ -74,16 +69,18 @@ namespace BE_W06L02.Controllers
                     SqlCommand command = new SqlCommand(query, conn);
                     command.Parameters.AddWithValue("@AziendaPrivato", cliente.AziendaPrivato);
                     command.Parameters.AddWithValue("@Nome", cliente.Nome);
-                    command.Parameters.AddWithValue("@Cognome", cliente.Cognome);
-                    command.Parameters.AddWithValue("@CodiceFiscale", cliente.CodiceFiscale);
-                    command.Parameters.AddWithValue("@PartitaIva", cliente.PartitaIva);
+                    command.Parameters.AddWithValue("@Cognome", (object)cliente.Cognome ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@CodiceFiscale", (object)cliente.CodiceFiscale ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@PartitaIva", (object)cliente.PartitaIva ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Indirizzo", cliente.Indirizzo);
                     command.Parameters.AddWithValue("@Citta", cliente.Citta);
 
                     command.ExecuteNonQuery();
 
                     // Restituisci una vista di conferma o reindirizza ad un'altra azione dopo il salvataggio del cliente
-                    return RedirectToAction("ClienteRegistrato");
+                    
+                    return View(cliente);
+                    
                 }
                 catch (Exception ex)
                 {
