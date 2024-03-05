@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<BE_W06L02.Models.Spedizione>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Archivio Spedizioni";
 }
 
 <h2>Index</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Registra Spedizione", "NuovaSpedizione")
 </p>
 <table class="table text-white">
     <tr>
@@ -37,6 +37,9 @@
         </th>
         <th>
             @Html.DisplayNameFor(model => model.DataConsegnaPrevista)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Status)
         </th>
         <th></th>
     </tr>
@@ -71,9 +74,13 @@
             @Html.DisplayFor(modelItem => item.DataConsegnaPrevista)
         </td>
         <td>
-            @Html.ActionLink("Edit", "EditSpedizione", new { id=item.IdSpedizione }) |
-            @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
-            @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
+            @Html.DisplayFor(modelItem => item.Status)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.IdSpedizione })
+            <!--|
+    @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+    @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })-->
         </td>
     </tr>
 }

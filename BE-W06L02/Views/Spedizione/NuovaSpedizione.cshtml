@@ -1,18 +1,18 @@
 ﻿@model BE_W06L02.Models.Spedizione
 
 @{
-    ViewBag.Title = "NuovaSpedizione";
+    ViewBag.Title = "Registra Spedizione";
 }
 
-<h2>NuovaSpedizione</h2>
+<h2>Registra Spedizione</h2>
 
 
-@using (Html.BeginForm())
+@using (Html.BeginForm()) 
 {
     @Html.AntiForgeryToken()
-
+    
     <div class="form-horizontal">
-        <h4>Spedizione</h4>
+        <h4>Nuova Spedizione</h4>
         <hr />
         <div class="form-group">
             @Html.LabelFor(model => model.IdCliente, htmlAttributes: new { @class = "control-label col-md-2" })
@@ -79,16 +79,24 @@
         </div>
 
         <div class="form-group">
+            @Html.LabelFor(model => model.Status, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Status, new SelectList(Model.StatusItems, "Value", "Text"), "-- Seleziona lo stato della consegna --", new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Registra Spedizione" class="my-2 btn btn-light" />
+                <input type="submit" value="Create" class="btn btn-default" />
             </div>
         </div>
     </div>
 }
-
 <div>
     @Html.ActionLink("Home Page", "Index", "Home")
 </div>
+
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
 }

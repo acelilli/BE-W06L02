@@ -37,12 +37,17 @@ namespace BE_W06L02.Controllers
                         IndirizzoDestinazione = reader["IndirizzoDestinazione"].ToString(),
                         NominativoDestinatario = reader["NominativoDestinatario"].ToString(),
                         SpeseSpedizione = Convert.ToDecimal(reader["SpeseSpedizione"]),
-                        DataConsegnaPrevista = reader["DataConsegnaPrevista"] as DateTime?
+                        DataConsegnaPrevista = reader["DataConsegnaPrevista"] as DateTime?,
+                        Status = reader["Status"].ToString()
                     };
                     spedizioniList.Add(spedizione);
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // Gestione dell'eccezione
+                System.Diagnostics.Debug.WriteLine("Errore: " + ex.Message);
+            }
             finally
             {
                 conn.Close();
@@ -55,11 +60,13 @@ namespace BE_W06L02.Controllers
         public ActionResult NuovaSpedizione()
         {
             // Ottenimento delle liste per i menu a tendina
-            var clientiList = GetClientiList(); //metodo alla fine
+            var clientiList = GetClientiList();
+            var statusList = GetStatiConsegnaList();
 
             var model = new Spedizione
             {
                 ClientiItems = clientiList,
+                StatusItems = statusList,
             };
             return View(model);
         }
@@ -70,14 +77,15 @@ namespace BE_W06L02.Controllers
         {
             if (ModelState.IsValid)
             {
-                string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
-                SqlConnection conn = new SqlConnection(connectionString);
+                SqlConnection conn = null;
                 try
                 {
+                    string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
+                    conn = new SqlConnection(connectionString);
                     string query = @"INSERT INTO Spedizione (IdCliente, DataSpedizione, Peso, CittaDestinazione, 
-                                IndirizzoDestinazione, NominativoDestinatario, SpeseSpedizione, DataConsegnaPrevista) 
+                                IndirizzoDestinazione, NominativoDestinatario, SpeseSpedizione, DataConsegnaPrevista, Status) 
                                 VALUES (@IdCliente, @DataSpedizione, @Peso, @CittaDestinazione, 
-                                @IndirizzoDestinazione, @NominativoDestinatario, @SpeseSpedizione, @DataConsegnaPrevista)";
+                                @IndirizzoDestinazione, @NominativoDestinatario, @SpeseSpedizione, @DataConsegnaPrevista, @Status)";
 
                     SqlCommand command = new SqlCommand(query, conn);
                     command.Parameters.AddWithValue("@IdCliente", spedizione.IdCliente);
@@ -88,11 +96,11 @@ namespace BE_W06L02.Controllers
                     command.Parameters.AddWithValue("@NominativoDestinatario", spedizione.NominativoDestinatario);
                     command.Parameters.AddWithValue("@SpeseSpedizione", spedizione.SpeseSpedizione);
                     command.Parameters.AddWithValue("@DataConsegnaPrevista", spedizione.DataConsegnaPrevista ?? (object)DBNull.Value);
+                    command.Parameters.AddWithValue("@Status", spedizione.Status);
 
                     conn.Open();
                     command.ExecuteNonQuery();
-                    // In alternativa, reindirizza ad un'altra azione o restituisci una vista di conferma
-                    return View(spedizione);
+                    return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
@@ -101,10 +109,11 @@ namespace BE_W06L02.Controllers
                 }
                 finally
                 {
-                    conn.Close();
+                   conn.Close();
                 }
             }
 
+            // Se il modello non è valido, torna alla vista con il modello per correggere gli errori
             return View(spedizione);
         }
 
@@ -115,40 +124,56 @@ namespace BE_W06L02.Controllers
 
             // Connessione al database e recupero delle opzioni per l'anagrafica
             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
             {
-                try
-                {
-                    conn.Open();
-                    string query = "SELECT IdCliente, Nome, Cognome FROM Cliente";
-                    SqlCommand command = new SqlCommand(query, conn);
-                    SqlDataReader reader = command.ExecuteReader();
+                conn.Open();
+                string query = "SELECT IdCliente, Nome, Cognome FROM Cliente";
+                SqlCommand command = new SqlCommand(query, conn);
+                SqlDataReader reader = command.ExecuteReader();
 
-                    while (reader.Read())
+                while (reader.Read())
+                {
+                    var item = new SelectListItem
                     {
-                        var item = new SelectListItem
-                        {
-                            Value = reader["IdCliente"].ToString(),
-                            Text = $"{reader["Nome"]} {reader["Cognome"]}"
-                        };
-                        clientiList.Add(item);
-                    }
+                        Value = reader["IdCliente"].ToString(),
+                        Text = $"{reader["Nome"]} {reader["Cognome"]}"
+                    };
+                    clientiList.Add(item);
                 }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
-                }
-                finally
-                {
-                    conn.Close();
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+            }
+            finally
+            {
+                conn.Close();
             }
 
             return clientiList;
         }
+
+        // GET PER GLI STATUS per il menù a tendina
+        private List<SelectListItem> GetStatiConsegnaList()
+        {
+            var statiConsegnaList = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "Registrato", Text = "Registrato" },
+                new SelectListItem { Value = "Pronto", Text = "Pronto per la spedizione" },
+                new SelectListItem { Value = "Spedito", Text = "Spedito dal magazzino" },
+                new SelectListItem { Value = "Transito", Text = "In transito" },
+                new SelectListItem { Value = "Dogana", Text = "Arrivato alla dogana" },
+                new SelectListItem { Value = "RicevutoLocale", Text = "Ricevuto dalla società di consegna locale" },
+                new SelectListItem { Value = "InConsegna", Text = "In consegna" },
+                new SelectListItem { Value = "Consegnato", Text = "Pacco consegnato" }
+            };
+            return statiConsegnaList;
+        }
+
         // GET: Seleziona i dati nel DB per visualizzare tramite ID
         [HttpGet]
-        public ActionResult EditSpedizione(int id)
+        public ActionResult EditSpedizione(int idSpedizione)
         {
             Spedizione spedizione = null;
             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
@@ -157,7 +182,7 @@ namespace BE_W06L02.Controllers
             {
                 string query = "SELECT * FROM Spedizione WHERE IdSpedizione = @IdSpedizione";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@IdSpedizione", id);
+                cmd.Parameters.AddWithValue("@IdSpedizione", idSpedizione);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
@@ -166,13 +191,14 @@ namespace BE_W06L02.Controllers
                     {
                         IdSpedizione = (int)reader["IdSpedizione"],
                         IdCliente = (int)reader["IdCliente"],
-                        DataSpedizione = reader["DataSpedizione"] != DBNull.Value ? (DateTime)reader["DataSpedizione"] : (DateTime?)null,
+                        DataSpedizione = (DateTime)reader["DataSpedizione"],
                         Peso = (decimal)reader["Peso"],
                         CittaDestinazione = reader["CittaDestinazione"].ToString(),
                         IndirizzoDestinazione = reader["IndirizzoDestinazione"].ToString(),
                         NominativoDestinatario = reader["NominativoDestinatario"].ToString(),
                         SpeseSpedizione = (decimal)reader["SpeseSpedizione"],
-                        DataConsegnaPrevista = reader["DataConsegnaPrevista"] != DBNull.Value ? (DateTime)reader["DataConsegnaPrevista"] : (DateTime?)null
+                        DataConsegnaPrevista = (DateTime)reader["DataConsegnaPrevista"],
+                        Status = reader["Status"].ToString()
                     };
                 }
             }
@@ -184,11 +210,19 @@ namespace BE_W06L02.Controllers
             {
                 conn.Close();
             }
+
+            // Ottenere la lista dei clienti
+            List<SelectListItem> clientiList = GetClientiList();
+            List<SelectListItem> statusList = GetStatiConsegnaList();
+
+            ViewBag.ClientiList = clientiList;
+            ViewBag.StatusList = statusList;
+
             return View(spedizione);
         }
 
         [HttpPost]
-        public ActionResult EditSpedizione(int id, Spedizione spedizione)
+        public ActionResult EditSpedizione(int idSpedizione, Spedizione spedizione)
         {
             if (ModelState.IsValid)
             {
@@ -197,7 +231,7 @@ namespace BE_W06L02.Controllers
                 {
                     string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
                     conn = new SqlConnection(connectionString);
-                    string sqlQuery = "UPDATE Spedizione SET IdCliente = @IdCliente, DataSpedizione = @DataSpedizione, Peso = @Peso, CittaDestinazione = @CittaDestinazione, IndirizzoDestinazione = @IndirizzoDestinazione, NominativoDestinatario = @NominativoDestinatario, SpeseSpedizione = @SpeseSpedizione, DataConsegnaPrevista = @DataConsegnaPrevista WHERE IdSpedizione = @IdSpedizione";
+                    string sqlQuery = "UPDATE Spedizione SET IdCliente = @IdCliente, DataSpedizione = @DataSpedizione, Peso = @Peso, CittaDestinazione = @CittaDestinazione, IndirizzoDestinazione = @IndirizzoDestinazione, NominativoDestinatario = @NominativoDestinatario, SpeseSpedizione = @SpeseSpedizione, DataConsegnaPrevista = @DataConsegnaPrevista, Status = @Status WHERE IdSpedizione = @IdSpedizione";
 
                     SqlCommand cmd = new SqlCommand(sqlQuery, conn);
                     cmd.Parameters.AddWithValue("@IdSpedizione", spedizione.IdSpedizione);
@@ -209,6 +243,7 @@ namespace BE_W06L02.Controllers
                     cmd.Parameters.AddWithValue("@NominativoDestinatario", spedizione.NominativoDestinatario);
                     cmd.Parameters.AddWithValue("@SpeseSpedizione", spedizione.SpeseSpedizione);
                     cmd.Parameters.AddWithValue("@DataConsegnaPrevista", spedizione.DataConsegnaPrevista);
+                    cmd.Parameters.AddWithValue("@Status", spedizione.Status);
 
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -225,7 +260,5 @@ namespace BE_W06L02.Controllers
             }
             return View(spedizione);
         }
-
-
     }
 }

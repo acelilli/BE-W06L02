@@ -43,9 +43,16 @@ namespace BE_W06L02.Models
         [DataType(DataType.Date)]
         public DateTime? DataConsegnaPrevista { get; set; }
 
+        [Display(Name ="Stato della consegna")]
+        [Required(ErrorMessage = "La spedizione deve avere uno stato.")]
+        public string Status {  get; set; }
+        public List<SelectListItem> StatusItems { get; set; } // Lista delle opzioni per i clienti registrati
+
+
         public Spedizione()
         {
             ClientiItems = new List<SelectListItem>();
+            StatusItems = new List<SelectListItem>();
         }
         public Spedizione(int idSpedizione, int idCliente, DateTime? dataSpedizione, decimal peso, string cittaDestinazione, string indirizzoDestinazione, string nominativoDestinatario, decimal speseSpedizione, DateTime? dataConsegnaPrevista)
         {
@@ -61,6 +68,7 @@ namespace BE_W06L02.Models
 
             // Inizializza le liste delle opzioni
             ClientiItems = new List<SelectListItem>();
+            StatusItems = new List<SelectListItem>();
         }
     }
 }
