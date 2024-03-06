@@ -90,16 +90,21 @@
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
     <script>
-        $(document).ready(function () {
-            $("#aziendaCheckbox").change(function () {
-                if ($(this).is(":checked")) {
-                    $("#codiceFiscale").hide();
-                    $("#cognome").hide();
-                    $("#partitaIva").show();
+        document.addEventListener("DOMContentLoaded", function () {
+            var aziendaCheckbox = document.getElementById("aziendaCheckbox");
+            var codiceFiscale = document.getElementById("codiceFiscale");
+            var cognome = document.getElementById("cognome");
+            var partitaIva = document.getElementById("partitaIva");
+
+            aziendaCheckbox.addEventListener("change", function () {
+                if (this.checked) {
+                    codiceFiscale.style.display = "none";
+                    cognome.style.display = "none";
+                    partitaIva.style.display = "block";
                 } else {
-                    $("#codiceFiscale").show();
-                    $("#cognome").show();
-                    $("#partitaIva").hide();
+                    codiceFiscale.style.display = "block";
+                    cognome.style.display = "block";
+                    partitaIva.style.display = "none";
                 }
             });
         });
