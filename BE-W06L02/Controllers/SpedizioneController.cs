@@ -222,7 +222,7 @@ namespace BE_W06L02.Controllers
         }
 
         [HttpPost]
-        public ActionResult EditSpedizione(int idSpedizione, Spedizione spedizione)
+        public ActionResult EditSpedizione(Spedizione spedizione)
         {
             if (ModelState.IsValid)
             {
@@ -260,5 +260,6 @@ namespace BE_W06L02.Controllers
             }
             return View(spedizione);
         }
+
     }
 }
