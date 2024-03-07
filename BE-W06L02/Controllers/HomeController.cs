@@ -8,6 +8,7 @@ namespace BE_W06L02.Controllers
 {
     public class HomeController : Controller
     {
+        [Authorize(Roles = "admin, employee")]
         public ActionResult Index()
         {
             return View();

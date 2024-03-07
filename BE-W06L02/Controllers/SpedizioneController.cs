@@ -11,6 +11,7 @@ namespace BE_W06L02.Controllers
 {
     public class SpedizioneController : Controller
     {
+        [Authorize(Roles = "admin, employee")]
         // GET: Spedizione
         public ActionResult Index()
         {
@@ -56,6 +57,7 @@ namespace BE_W06L02.Controllers
             return View(spedizioniList);
         }
 
+        [Authorize(Roles = "admin, employee")]
         [HttpGet]
         public ActionResult NuovaSpedizione()
         {
@@ -172,6 +174,7 @@ namespace BE_W06L02.Controllers
         }
 
         // GET: Seleziona i dati nel DB per visualizzare tramite ID
+        [Authorize(Roles = "admin, employee")]
         [HttpGet]
         public ActionResult EditSpedizione(int id)
         {

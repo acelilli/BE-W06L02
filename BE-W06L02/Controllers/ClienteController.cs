@@ -12,6 +12,7 @@ using System.Web.Mvc;
 
 namespace BE_W06L02.Controllers
 {
+    [Authorize(Roles = "admin, employee")]
     public class ClienteController : Controller
     {
         // GET: Cliente
@@ -52,35 +53,7 @@ namespace BE_W06L02.Controllers
             return View(clientiList); // Passa la lista dei clienti alla vista
         }
 
-        // Verifico che i valori siano unici
-        /* Fallimenti cya
-         * public JsonResult IsValueUnique(string columnName, string value)
-         {
-             bool isUnique;
-             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
-
-             using (SqlConnection conn = new SqlConnection(connectionString))
-             {
-                 try
-                 {
-                     conn.Open();
-                     string query = $"SELECT COUNT(*) FROM Cliente WHERE {columnName} = @Value";
-                     SqlCommand command = new SqlCommand(query, conn);
-                     command.Parameters.AddWithValue("@Value", value);
-                     int count = (int)command.ExecuteScalar();
-                     isUnique = count == 0;
-
-                     return Json(isUnique, JsonRequestBehavior.AllowGet);
-                 }
-                 catch (Exception ex)
-                 {
-                     System.Diagnostics.Debug.WriteLine("Errore:" + ex.Message);
-                     return Json(false, JsonRequestBehavior.AllowGet);
-                 } */
-
-
-
-        //Create del form da compilare per la registrazione
+        [Authorize(Roles = "admin, employee")]
         [HttpGet]
         public ActionResult NuovoCliente() {
             return View();

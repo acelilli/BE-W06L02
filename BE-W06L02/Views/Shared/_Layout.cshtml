@@ -20,9 +20,16 @@
                 <ul class="navbar-nav flex-grow-1">
                     <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
                     <!-- Custom -->
-                    <li>@Html.ActionLink("Clienti", "Index", "Cliente", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Spedizioni", "Index", "Spedizione", new { area = "" }, new { @class = "nav-link" })</li>
+                    @if (User.IsInRole("admin") || User.IsInRole("employee"))
+                    {
+                        <li>@Html.ActionLink("Clienti", "Index", "Cliente", new { area = "" }, new { @class = "nav-link" })</li>
+                        <li>@Html.ActionLink("Spedizioni", "Index", "Spedizione", new { area = "" }, new { @class = "nav-link" })</li>
+                    }
                 </ul>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <a href="@Url.Action("Logout", "Login")" class="btn btn-light my-2 my-sm-0">LogOut</a>
+                }
             </div>
         </div>
     </nav>
