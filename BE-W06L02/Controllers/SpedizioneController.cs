@@ -2,8 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Web;
 using System.Web.Mvc;
 
@@ -146,7 +148,7 @@ namespace BE_W06L02.Controllers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Errore nel recupero dati clienti" + ex.Message);
             }
             finally
             {
@@ -181,12 +183,15 @@ namespace BE_W06L02.Controllers
             Spedizione spedizione = null;
             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
             SqlConnection conn = new SqlConnection(connectionString);
+
             try
             {
+                conn.Open();
+
                 string query = "SELECT * FROM Spedizione WHERE IdSpedizione = @IdSpedizione";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@IdSpedizione", id);
-                conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
@@ -203,23 +208,20 @@ namespace BE_W06L02.Controllers
                         DataConsegnaPrevista = (DateTime)reader["DataConsegnaPrevista"],
                         Status = reader["Status"].ToString()
                     };
-                    // Assegna i valori alle liste dei clienti e degli stati
-                    spedizione.ClientiItems = GetClientiList();
-                    spedizione.StatusItems = GetStatiConsegnaList();
                 }
+
                 reader.Close();
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+                System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL: " + ex.Message);
             }
             finally
             {
-                conn.Close();
+                if (conn.State == ConnectionState.Open)
+                    conn.Close();
             }
 
-            // Ottenere la lista dei clienti
-            ViewData["ClientiList"] = GetClientiList();
             ViewData["StatusList"] = GetStatiConsegnaList();
 
             return View(spedizione);
@@ -230,40 +232,36 @@ namespace BE_W06L02.Controllers
         {
             if (ModelState.IsValid)
             {
-                SqlConnection conn = null;
+                string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
+                SqlConnection conn = new SqlConnection(connectionString);
+
                 try
                 {
-                    string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
-                    conn = new SqlConnection(connectionString);
-                    string sqlQuery = "UPDATE Spedizione SET IdCliente = @IdCliente, DataSpedizione = @DataSpedizione, Peso = @Peso, CittaDestinazione = @CittaDestinazione, IndirizzoDestinazione = @IndirizzoDestinazione, NominativoDestinatario = @NominativoDestinatario, SpeseSpedizione = @SpeseSpedizione, DataConsegnaPrevista = @DataConsegnaPrevista, Status = @Status WHERE IdSpedizione = @IdSpedizione";
+                    conn.Open();
 
+                    string sqlQuery = "UPDATE Spedizione SET Status = @Status WHERE IdSpedizione = @IdSpedizione";
                     SqlCommand cmd = new SqlCommand(sqlQuery, conn);
                     cmd.Parameters.AddWithValue("@IdSpedizione", spedizione.IdSpedizione);
-                    cmd.Parameters.AddWithValue("@IdCliente", spedizione.IdCliente);
-                    cmd.Parameters.AddWithValue("@DataSpedizione", spedizione.DataSpedizione);
-                    cmd.Parameters.AddWithValue("@Peso", spedizione.Peso);
-                    cmd.Parameters.AddWithValue("@CittaDestinazione", spedizione.CittaDestinazione);
-                    cmd.Parameters.AddWithValue("@IndirizzoDestinazione", spedizione.IndirizzoDestinazione);
-                    cmd.Parameters.AddWithValue("@NominativoDestinatario", spedizione.NominativoDestinatario);
-                    cmd.Parameters.AddWithValue("@SpeseSpedizione", spedizione.SpeseSpedizione);
-                    cmd.Parameters.AddWithValue("@DataConsegnaPrevista", spedizione.DataConsegnaPrevista);
                     cmd.Parameters.AddWithValue("@Status", spedizione.Status);
 
-                    conn.Open();
                     cmd.ExecuteNonQuery();
-                    return RedirectToAction("Index");
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL" + ex.Message);
+                    System.Diagnostics.Debug.WriteLine("Errore nella richiesta SQL: " + ex.Message);
                 }
                 finally
                 {
-                    conn.Close();
+                    if (conn.State == ConnectionState.Open)
+                        conn.Close();
                 }
+
+                return RedirectToAction("Index", "Home");
             }
+
             return View(spedizione);
         }
+
 
     }
 }

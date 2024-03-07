@@ -11,6 +11,7 @@ namespace BE_W06L02.Controllers
         [Authorize(Roles = "admin, employee")]
         public ActionResult Index()
         {
+            ViewBag.Message = TempData["Message"] as string;
             return View();
         }
 

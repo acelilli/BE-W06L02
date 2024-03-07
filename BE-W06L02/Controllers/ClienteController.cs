@@ -48,9 +48,9 @@ namespace BE_W06L02.Controllers
             catch { }
             finally
             {
-                conn.Close(); // Assicurati di chiudere la connessione
+                conn.Close(); 
             }
-            return View(clientiList); // Passa la lista dei clienti alla vista
+            return View(clientiList); 
         }
 
         [Authorize(Roles = "admin, employee")]
@@ -83,23 +83,21 @@ namespace BE_W06L02.Controllers
 
                     command.ExecuteNonQuery();
 
-                   
-                    return View(cliente);
-                    
+
+                    TempData["Message"] = "Cliente inserito con successo";
+                    return RedirectToAction("Index", "Home");
                 }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Debug.WriteLine("Errore:" + ex.Message);
-                    ModelState.AddModelError("", "Si è verificato un errore durante il salvataggio del cliente. Riprova più tardi.");
+                    TempData["Message"] = "Si è verificato un errore durante il salvataggio del cliente. Riprova più tardi.";
                 }
                 finally
                 {
                     conn.Close();
                 }
             }
-
-            // Se il modello non è valido o si è verificato un errore, restituisci la vista con il modello
-            return View(cliente);
+            return RedirectToAction("Index", "Home");
         }
 
     }
