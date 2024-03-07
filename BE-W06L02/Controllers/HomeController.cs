@@ -51,7 +51,6 @@ namespace BE_W06L02.Controllers
                     Spedizione spedizione = new Spedizione
                     {
                         IdSpedizione = Convert.ToInt32(reader["IdSpedizione"]),
-                        // Popolare altre proprietà necessarie
                     };
                     spedizioni.Add(spedizione);
                 }
