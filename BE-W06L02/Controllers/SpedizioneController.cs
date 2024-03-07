@@ -173,7 +173,7 @@ namespace BE_W06L02.Controllers
 
         // GET: Seleziona i dati nel DB per visualizzare tramite ID
         [HttpGet]
-        public ActionResult EditSpedizione(int idSpedizione)
+        public ActionResult EditSpedizione(int id)
         {
             Spedizione spedizione = null;
             string connectionString = ConfigurationManager.ConnectionStrings["W06L01"].ConnectionString;
@@ -182,15 +182,15 @@ namespace BE_W06L02.Controllers
             {
                 string query = "SELECT * FROM Spedizione WHERE IdSpedizione = @IdSpedizione";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@IdSpedizione", idSpedizione);
+                cmd.Parameters.AddWithValue("@IdSpedizione", id);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
                 if (reader.Read())
                 {
                     spedizione = new Spedizione
                     {
-                        IdSpedizione = (int)reader["IdSpedizione"],
-                        IdCliente = (int)reader["IdCliente"],
+                        IdSpedizione = Convert.ToInt32(reader["IdSpedizione"]),
+                        IdCliente = Convert.ToInt32(reader["IdCliente"]),
                         DataSpedizione = (DateTime)reader["DataSpedizione"],
                         Peso = (decimal)reader["Peso"],
                         CittaDestinazione = reader["CittaDestinazione"].ToString(),
@@ -200,7 +200,11 @@ namespace BE_W06L02.Controllers
                         DataConsegnaPrevista = (DateTime)reader["DataConsegnaPrevista"],
                         Status = reader["Status"].ToString()
                     };
+                    // Assegna i valori alle liste dei clienti e degli stati
+                    spedizione.ClientiItems = GetClientiList();
+                    spedizione.StatusItems = GetStatiConsegnaList();
                 }
+                reader.Close();
             }
             catch (Exception ex)
             {
@@ -212,11 +216,8 @@ namespace BE_W06L02.Controllers
             }
 
             // Ottenere la lista dei clienti
-            List<SelectListItem> clientiList = GetClientiList();
-            List<SelectListItem> statusList = GetStatiConsegnaList();
-
-            ViewBag.ClientiList = clientiList;
-            ViewBag.StatusList = statusList;
+            ViewData["ClientiList"] = GetClientiList();
+            ViewData["StatusList"] = GetStatiConsegnaList();
 
             return View(spedizione);
         }
