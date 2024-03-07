@@ -73,7 +73,7 @@ namespace BE_W06L02.Controllers
 
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                string query = "SELECT COUNT(*) FROM Spedizione WHERE Status = 'InConsegna'";
+                string query = "SELECT COUNT(*) FROM Spedizione WHERE Status  <> 'Consegnato'";
                 SqlCommand command = new SqlCommand(query, conn);
 
                 conn.Open();

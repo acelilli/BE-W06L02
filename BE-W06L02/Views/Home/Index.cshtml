@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     ViewBag.Title = "Home Page";
 }
 
@@ -23,24 +23,6 @@
                 </div>
             </div>
         </div>
-        </div>
-    <div class="row py-3">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body  bg-dark border border-secondary">
-                    <h5 class="card-title">Spedizioni per città destinataria</h5>
-                    <ul class="list-group">
-                        @foreach (var item in ViewBag.DeliveriesByCity)
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center text-light bg-dark border border-secondary">
-                                @item.Key
-                                <span class="badge badge-primary badge-pill">@item.Value</span>
-                            </li>
-                        }
-                    </ul>
-                </div>
-            </div>
-        </div>
     </div>
     <div class="row py-3">
         <div class="col-sm-6">
@@ -58,6 +40,24 @@
                     <h5 class="card-title">Registra spedizione</h5>
                     <p class="card-text">Registra una nuova spedizione al database.</p>
                     @Html.ActionLink("Registra Spedizione", "NuovaSpedizione", "Spedizione", null, new { @class = "btn btn-outline-success" })
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row py-3">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body  bg-dark border border-secondary">
+                    <h5 class="card-title">Spedizioni per città destinataria</h5>
+                    <ul class="list-group">
+                        @foreach (var item in ViewBag.DeliveriesByCity)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center text-light bg-dark border border-secondary">
+                                @item.Key
+                                <span class="badge badge-primary badge-pill">@item.Value</span>
+                            </li>
+                        }
+                    </ul>
                 </div>
             </div>
         </div>
