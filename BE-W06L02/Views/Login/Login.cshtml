@@ -4,26 +4,35 @@
     ViewBag.Title = "Login";
 }
 
-<h2>Login</h2>
-@using (Html.BeginForm("Login", "Login", FormMethod.Post))
+@if (User.Identity.IsAuthenticated)
 {
-    @Html.ValidationSummary(true)
+    <h2 class="mb-0">Benvenuto in</h2>
+    <h1>Ssssspedizioni</h1>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-light my-2">Entra</a>
 
-    <div class="form-group">
-        @Html.LabelFor(model => model.Username)
-        @Html.TextBoxFor(model => model.Username, new { @class = "form-control", placeholder = "Username" })
-        @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
-    </div>
-
-    <div class="form-group">
-        @Html.LabelFor(model => model.Password)
-        @Html.PasswordFor(model => model.Password, new { @class = "form-control", placeholder = "Password" })
-        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
-    </div>
-
-    <button type="submit" class="btn btn-light my-2">Login</button>
 }
+else
+{
+    <h2>Login</h2>
+    <form action="@Url.Action("Login", "Login")" method="post">
+        @Html.ValidationSummary(true)
 
-<div class="text-danger">
-    @ViewBag.AuthError
-</div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Username)
+            @Html.TextBoxFor(model => model.Username, new { @class = "form-control", placeholder = "Username" })
+            @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger" })
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Password)
+            @Html.PasswordFor(model => model.Password, new { @class = "form-control", placeholder = "Password" })
+            @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+        </div>
+
+        <button type="submit" class="btn btn-light my-2">Login</button>
+    </form>
+
+    <div class="text-danger">
+        @ViewBag.AuthError
+    </div>
+}
